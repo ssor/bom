@@ -1,8 +1,9 @@
 package bom
 
 import (
-	"bufio"
+	"bytes"
 	"io"
+	"io/ioutil"
 )
 
 const (
@@ -24,20 +25,10 @@ func CleanBom(b []byte) []byte {
 }
 
 // NewReaderWithoutBom returns an io.Reader that will skip over initial UTF-8 byte order marks.
-func NewReaderWithoutBom(r io.Reader) io.Reader {
-	buf := bufio.NewReader(r)
-	b, err := buf.Peek(3)
+func NewReaderWithoutBom(r io.Reader) (io.Reader, error) {
+	bs, err := ioutil.ReadAll(r)
 	if err != nil {
-		// not enough bytes
-		return buf
+		return nil, err
 	}
-	if b[0] == bom0 && b[1] == bom1 && b[2] == bom2 {
-		discardBytes(buf, 3)
-	}
-	return buf
-}
-
-func discardBytes(buf *bufio.Reader, n int) {
-	// the Discard method was introduced in Go 1.5
-	buf.Discard(n)
+	return bytes.NewReader(CleanBom(bs)), nil
 }

@@ -31,7 +31,10 @@ var (
 
 func TestNewReaderWithoutBom(t *testing.T) {
 	for index, test_case := range test_cases {
-		result := NewReaderWithoutBom(bytes.NewReader(test_case.src))
+		result, err := NewReaderWithoutBom(bytes.NewReader(test_case.src))
+		if err != nil {
+			t.Fatal(err)
+		}
 		bs, err := ioutil.ReadAll(result)
 		if err != nil {
 			t.Fatal(err)
